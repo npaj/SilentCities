@@ -16,6 +16,8 @@ from datetime import time
 import pandas as pd 
 from librosa.core import get_duration
 
+import datetime 
+
 import argparse
 
 parser = argparse.ArgumentParser(description='Silent City Audio Tagging with pretrained LeeNet11 on Audioset')
@@ -132,4 +134,11 @@ for wavfile in tqdm(filelist):
 
 
 df = pd.DataFrame(all_seg)
-df.to_pickle('test.xz')
+
+alldatetimes = [datetime.datetime(cdate.year,cdate.month,cdate.day,ctime.hour,ctime.minute,ctime.second) for ctime,cdate in zip(df.time,df.date)]
+
+df['datetime'] = alldatetimes
+
+df = df.sort_values(by='datetime')
+
+df.to_pickle('detections.xz')
