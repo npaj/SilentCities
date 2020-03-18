@@ -1,19 +1,24 @@
-Silent City
+Silent Cities AudioTagging
 --
 
-Applying pretrained DL model to annotate soundscapes of the silent cities. 
+Applying a pretrained DL model to annotate soundscapes. 
+This was developed for analyzing the data collected in the [Silent Cities project](https://osf.io/h285u/).
 
 Used model: 
 - Audio Tagging on [Audioset](https://research.google.com/audioset/) using LeeNet11 from [PANNs](https://github.com/qiuqiangkong/audioset_tagging_cnn)
 
 Requirements
 --
-[pytorch](https://pytorch.org/) 1.4.0
-[librosa](https://librosa.github.io/librosa/)
+- [pytorch](https://pytorch.org/) 1.4.0
+- [librosa](https://librosa.github.io/librosa/)
+- tqdm
+- pandas
+- numpy
+- matplotlib
 
 Usage
 --
-    python audiotagging.py [-h] [--length LENGTH] [--nbcat NBCAT]
+    python tag_audiomoth.py [-h] [--length LENGTH] [--nbcat NBCAT]
                        [--folder FOLDER] [--file FILE] [--verbose]
                        [--overwrite] [--out OUT]
 
@@ -28,6 +33,7 @@ Usage
     --verbose        Verbose (default False = nothing printed)
     --overwrite      Overwrite files (default False)
     --out OUT        Output file (pandas pickle), default is output.xz
+    
 
 Credits
 --

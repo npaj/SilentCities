@@ -28,6 +28,7 @@ parser.add_argument('--file', default=None, type=str, help='Path to file to proc
 parser.add_argument('--verbose', action='store_true', help='Verbose (default False = nothing printed)')
 parser.add_argument('--overwrite', action='store_true', help='Overwrite files (default False)')
 parser.add_argument('--out', default='output.xz', type=str, help='Output file (pandas pickle), default is output.xz')
+parser.add_argument('--cuda', action='store_false', help='Use the GPU for acceleration (Default True)')
 
 args = parser.parse_args()
 
@@ -95,7 +96,7 @@ for wavfile in tqdm(filelist):
             onsets.append(curstart)
 
             # Make predictions for audioset 
-            clipwise_output, labels,sorted_indexes,embedding = audio_tagging(wavfile,checkpoint_path,offset=curstart,duration=nbsec,usecuda=True)
+            clipwise_output, labels,sorted_indexes,embedding = audio_tagging(wavfile,checkpoint_path,offset=curstart,duration=nbsec,usecuda=args.cuda)
 
 
             # Print audio tagging top probabilities
