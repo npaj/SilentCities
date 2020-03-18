@@ -76,7 +76,7 @@ for wavfile in tqdm(filelist):
         if (os.path.isfile(csvfile)):
             raise(NameError("File has already been processed"))
 
-    _,meta = utils.read_audiomoth_hdr(wavfile)
+    _,meta = utils.read_audio_hdr(wavfile,verbose)
         
     beg_seg = 0
     end_seg = np.floor(get_duration(filename=wavfile))
@@ -118,10 +118,6 @@ for wavfile in tqdm(filelist):
             if verbose:
                 print(annotation_str)
 
-            ### Append to srt file with timecode 
-            #annotation_str = "{tagging}\n".format(tagging=texttagging)
-            #utils.gen_srt(annotation_str,int(np.round(start)),srtfile=srtfile,num=n,duration=int(np.floor(nbsec)))
-            #n=n+1
 
             onset_dt = time(hour=meta['time'].hour,minute=meta['time'].minute,second=meta['time'].second + int(curstart))
             curdict = dict(time=onset_dt,onsets=curstart,freq=0.5,label=annotation_str,date=meta['date'],probas=clipwise_output)
@@ -137,6 +133,7 @@ for wavfile in tqdm(filelist):
 
 df = pd.DataFrame(all_seg)
 
+### Aggregate all datetimes with updated times
 alldatetimes = [datetime.datetime(cdate.year,cdate.month,cdate.day,ctime.hour,ctime.minute,ctime.second) for ctime,cdate in zip(df.time,df.date)]
 
 df['datetime'] = alldatetimes
