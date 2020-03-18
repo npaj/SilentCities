@@ -55,8 +55,8 @@ else:
                 filelist.append(os.path.join(root, name))
                 #print(currentvid)
                 
-            
-print(filelist)
+if verbose:            
+    print(filelist)
 
 
 
