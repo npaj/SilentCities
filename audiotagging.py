@@ -27,8 +27,7 @@ parser.add_argument('--folder', default=None, type=str, help='Path to folder wit
 parser.add_argument('--file', default=None, type=str, help='Path to file to process')
 parser.add_argument('--verbose', action='store_true', help='Verbose (default False = nothing printed)')
 parser.add_argument('--overwrite', action='store_true', help='Overwrite files (default False)')
-parser.add_argument('--out', default='output.xz', type=str, help='Output file (pandas pickle), default is output.xz)'
-
+parser.add_argument('--out', default='output.xz', type=str, help='Output file (pandas pickle), default is output.xz')
 
 args = parser.parse_args()
 

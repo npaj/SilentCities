@@ -13,7 +13,21 @@ Requirements
 
 Usage
 --
-    python audiotagging.py folder
+    python audiotagging.py [-h] [--length LENGTH] [--nbcat NBCAT]
+                       [--folder FOLDER] [--file FILE] [--verbose]
+                       [--overwrite] [--out OUT]
+
+    Silent City Audio Tagging with pretrained LeeNet11 on Audioset
+
+    optional arguments:
+    -h, --help       show this help message and exit
+    --length LENGTH  Segment length
+    --nbcat NBCAT    Maximum number of categories for writing annotated csv
+    --folder FOLDER  Path to folder with wavefiles, will walk through subfolders
+    --file FILE      Path to file to process
+    --verbose        Verbose (default False = nothing printed)
+    --overwrite      Overwrite files (default False)
+    --out OUT        Output file (pandas pickle), default is output.xz
 
 Credits
 --
