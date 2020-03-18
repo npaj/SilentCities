@@ -11,8 +11,6 @@ run.sh
 *.pth.tar
 *.pt
 
-*.png
-
 ## NIFTI
 *.nii.gz
 
