@@ -18,7 +18,7 @@ Requirements
 
 Usage
 --
-    python tag_audiomoth.py [-h] [--length LENGTH] [--nbcat NBCAT]
+    python tag_silentcities.py [-h] [--length LENGTH] [--nbcat NBCAT]
                        [--folder FOLDER] [--file FILE] [--verbose]
                        [--overwrite] [--out OUT]
 
