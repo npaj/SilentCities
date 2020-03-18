@@ -31,7 +31,7 @@ def gen_srt(strlabel,onset,srtfile,duration=2,num=1):
         f.write("\n")
 
 
-def read_audio_hdr(strWAVFile):
+def read_audio_hdr(strWAVFile,verbose=False):
 # Open file
     fileIn = open(strWAVFile, 'rb')
         
@@ -48,21 +48,28 @@ def read_audio_hdr(strWAVFile):
     if 'Recorded' in words[0]:
         curtime = datetime.datetime.strptime(str(words[2]),"%H:%M:%S").time()
         curdate = datetime.datetime.strptime(str(words[3]),"%d/%m/%Y").date()
+        curdate_time = datetime.datetime.strptime(str(words[3])+str(words[2]),"%d/%m/%Y%H:%M:%S")
         AMOid = words[7]
-        print('Audiomoth detected, ID is {}'.format(AMOid))
-        
+        if verbose:
+            print('Audiomoth detected, ID is {}'.format(AMOid))
+            print("Recording date and time is {}".format(curdate_time))
+            
         gain = float(words[11])
         battery = words[16]
 
         metadata = dict(time=curtime,date=curdate,id=AMOid,gain=gain,battery=float(battery[:-2]))
     else:
         
-        curtime = datetime.datetime.strptime(strWAVFile[-10:-5],"%H%M%S").time()
+        curtime = datetime.datetime.strptime(strWAVFile[-10:-4],"%H%M%S").time()
         curdate = datetime.datetime.strptime(strWAVFile[-19:-12],"%Y%m%d").date()
-
+        curdate_time = datetime.datetime.strptime(strWAVFile[-19:-4],"%Y%m%d_%H%M%S")
+        
         SM4id = strWAVFile[-28:-20]
-        print('SM4 detected, ID is {}'.format(SM4id))
+        if verbose:
+            print('SM4 detected, ID is {}'.format(SM4id))
+            print("Recording date and time is {}".format(curdate_time))
 
-        metadata = dict(time=curtime,date=curdate,id=SM4id,gain=0,battery=0)
+
+        metadata = dict(time=curtime,date=curdate,datetime=curdate_time,id=SM4id,gain=0,battery=0)
 
     return AMOhdr,metadata
