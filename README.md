@@ -34,7 +34,7 @@ Usage
     --overwrite      Overwrite files (default False)
     --out OUT        Output file (pandas pickle), default is output.xz
 
-This will save a pandas dataframe as an output file, which can be analyzed as explained in [this notebook](Analysis.ipynb).
+This will save a pandas dataframe as an output file, which can be analyzed as explained in [this notebook](Analysis.ipynb), which generate a heatmap such as this one : 
 
 ![Audio tagging of one night long recording in a street of Toulouse, France (March 16th / 17th 2020). Audio tagging was performed using a deep neural network pretrained on the Audioset dataset.
 ](silentcity.png)
