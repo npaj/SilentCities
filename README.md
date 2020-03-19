@@ -39,6 +39,9 @@ This will save a pandas dataframe as an output file, which can be analyzed as ex
 ![Audio tagging of one night long recording in a street of Toulouse, France (March 16th / 17th 2020). Audio tagging was performed using a deep neural network pretrained on the Audioset dataset.
 ](silentcity.png)
 
+![Audio tagging of one night long recording in a street of Toulouse, France (March 16th / 17th 2020). Audio tagging was performed using a deep neural network pretrained on the Audioset dataset.
+](silentcity2.png)
+
 (note though that the notebook preview doesn't seem to work on gitlab, so you have to clone / download the file)
 
 Credits
