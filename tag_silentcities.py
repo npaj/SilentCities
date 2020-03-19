@@ -89,7 +89,7 @@ for wavfile in tqdm(filelist):
 
     all_seg_folder = []
     with torch.no_grad():    
-        for curstart in tqdm(np.arange(beg_seg,end_seg,nbsec)):
+        for curstart in (np.arange(beg_seg,end_seg,nbsec)):
 
             start = curstart
             
