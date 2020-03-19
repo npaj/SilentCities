@@ -120,8 +120,8 @@ for wavfile in tqdm(filelist):
 
 
             onset_dt = time(hour=meta['time'].hour,minute=meta['time'].minute,second=meta['time'].second + int(curstart))
-            curdict = dict(time=onset_dt,onsets=curstart,freq=0.5,label=annotation_str,date=meta['date'],probas=clipwise_output)
-            curdict2 = dict(time=onset_dt,onsets=curstart,label=annotation_str,date=meta['date'],probas=clipwise_output)
+            curdict = dict(time=onset_dt,file=wavfile,onsets=curstart,freq=0.5,label=annotation_str,date=meta['date'],probas=clipwise_output)
+            curdict2 = dict(time=onset_dt,file=wavfile,onsets=curstart,label=annotation_str,date=meta['date'],probas=clipwise_output)
 
             all_seg.append(curdict2)
             all_seg_folder.append(curdict)
