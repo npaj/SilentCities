@@ -5,15 +5,17 @@ __pycache__/
 run.sh
 # C extensions
 *.so
-
+*.xz
 # pytorch checkpoint
 *.pth
 *.pth.tar
 *.pt
+*.wav
 
 ## NIFTI
 *.nii.gz
 
+*.csv
 # Distribution / packaging
 .Python
 build/
