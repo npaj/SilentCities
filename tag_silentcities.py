@@ -51,7 +51,7 @@ else:
 
     for root, dirs, files in os.walk(args.folder, topdown=False):
         for name in files:
-            if name[-3:] == 'WAV':
+            if name[-3:].casefold() == 'wav':
                 filelist.append(os.path.join(root, name))
                 #print(currentvid)
                 
@@ -72,71 +72,82 @@ nbsec = args.length
 
 for wavfile in tqdm(filelist):
     csvfile = (wavfile[:-3] + 'csv')
-    if not(Overwrite):
-        if (os.path.isfile(csvfile)):
-            raise(NameError("File has already been processed"))
+    try:
+        if not(Overwrite):
+            if (os.path.isfile(csvfile)):
+                raise(NameError("File has already been processed"))
 
-    _,meta = utils.read_audio_hdr(wavfile,verbose)
-        
-    beg_seg = 0
-    end_seg = np.floor(get_duration(filename=wavfile))
-
-    allpreds = []
-    onsets = []
-
-    audioset_proba = []
-    n=0
-
-    all_seg_folder = []
-    with torch.no_grad():    
-        for curstart in (np.arange(beg_seg,end_seg,nbsec)):
-
-            start = curstart
+        _,meta = utils.read_audio_hdr(wavfile,verbose)
             
-            onsets.append(curstart)
+        beg_seg = 0
+        end_seg = np.floor(get_duration(filename=wavfile))
 
-            # Make predictions for audioset 
-            clipwise_output, labels,sorted_indexes,embedding = audio_tagging(wavfile,checkpoint_path,offset=curstart,duration=nbsec,usecuda=args.cuda)
+        allpreds = []
+        onsets = []
 
+        audioset_proba = []
+        n=0
 
-            # Print audio tagging top probabilities
-            texttagging = ''
-            for k in range(nbcat):
-                texttagging += np.array(labels)[sorted_indexes[k]]
-                proba = 100 * clipwise_output[sorted_indexes[k]]
-                texttagging += ' ({0:2.1f}%)'.format(proba)
-                texttagging += ', '
-            texttagging = texttagging[:-2]
+        all_seg_folder = []
+        with torch.no_grad():    
+            for curstart in (np.arange(beg_seg,end_seg,nbsec)):
 
-            
-            ## AudioSet
-            audioset_proba.append(clipwise_output)
-            #audioset_fm.append(embedding)
+                start = curstart
+                
+                onsets.append(curstart)
 
-            annotation_str = "{tagging}".format(tagging=texttagging)
-
-            if verbose:
-                print(annotation_str)
+                # Make predictions for audioset 
+                clipwise_output, labels,sorted_indexes,embedding = audio_tagging(wavfile,checkpoint_path,offset=curstart,duration=nbsec,usecuda=args.cuda)
 
 
-            onset_dt = time(hour=meta['time'].hour,minute=meta['time'].minute,second=meta['time'].second + int(curstart))
-            curdict = dict(time=onset_dt,file=wavfile,onsets=curstart,freq=0.5,label=annotation_str,date=meta['date'],probas=clipwise_output)
-            curdict2 = dict(time=onset_dt,file=wavfile,onsets=curstart,label=annotation_str,date=meta['date'],probas=clipwise_output)
+                # Print audio tagging top probabilities
+                texttagging = ''
+                for k in range(nbcat):
+                    texttagging += np.array(labels)[sorted_indexes[k]]
+                    proba = 100 * clipwise_output[sorted_indexes[k]]
+                    texttagging += ' ({0:2.1f}%)'.format(proba)
+                    texttagging += ', '
+                texttagging = texttagging[:-2]
 
-            all_seg.append(curdict2)
-            all_seg_folder.append(curdict)
-            
-    df_forannot = pd.DataFrame(all_seg_folder)
-    df_forannot = df_forannot[['onsets','freq','label']]
-    df_forannot.to_csv(csvfile,index=False)
+                
+                ## AudioSet
+                audioset_proba.append(clipwise_output)
+                #audioset_fm.append(embedding)
+
+                annotation_str = "{tagging}".format(tagging=texttagging)
+
+                if verbose:
+                    print(annotation_str)
+
+                current_dt = meta['datetime']
+
+                delta=datetime.timedelta(seconds=int(curstart))
+
+
+
+                #onset_dt = time(hour=meta['time'].hour,minute=meta['time'].minute,second=meta['time'].second + int(curstart))
+                onset_dt = current_dt + delta
+
+                curdict = dict(datetime=onset_dt,time=onset_dt.time(),file=wavfile,onsets=curstart,freq=0.5,label=annotation_str,date=onset_dt.date(),probas=clipwise_output)
+                curdict2 = dict(datetime=onset_dt,time=onset_dt.time(),file=wavfile,onsets=curstart,label=annotation_str,date=onset_dt.date(),probas=clipwise_output)
+
+                all_seg.append(curdict2)
+                all_seg_folder.append(curdict)
+                
+        df_forannot = pd.DataFrame(all_seg_folder)
+        df_forannot = df_forannot[['onsets','freq','label']]
+        df_forannot.to_csv(csvfile,index=False)
+    except Exception as e:
+        print(wavfile)
+        print(e)
 
 
 df = pd.DataFrame(all_seg)
 
 ### Aggregate all datetimes with updated times
-alldatetimes = [datetime.datetime(cdate.year,cdate.month,cdate.day,ctime.hour,ctime.minute,ctime.second) for ctime,cdate in zip(df.time,df.date)]
+#alldatetimes = [datetime.datetime(cdate.year,cdate.month,cdate.day,ctime.hour,ctime.minute,ctime.second) for ctime,cdate in zip(df.time,df.date)]
 
-df['datetime'] = alldatetimes
+#df['datetime'] = alldatetimes
 
 df = df.sort_values(by='datetime')
 
