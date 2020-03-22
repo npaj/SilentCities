@@ -14,6 +14,8 @@ from tkinter import messagebox
 import os
 import urllib.request
 import sys
+import soundfile as sf
+from librosa.core import load 
 
 baseurl = "http://locus.creacast.com:9001"
 
@@ -66,8 +68,10 @@ def record_from_url(fname,url,nbsec=10):
     print ("Connecting to "+url)
 
     response = urllib.request.urlopen(url, timeout=10.0)
+    
+    fnametemp = 'temp.wav' # undefined filetype
 
-    f = open(fname, 'wb')
+    f = open(fnametemp, 'wb')
     block_size = 1024
     print ("Recording roughly {} seconds of audio Now - Please wait".format(nbsec))
 
@@ -87,6 +91,11 @@ def record_from_url(fname,url,nbsec=10):
     f.close()
     sys.stdout.flush()
     print("")
+    #audioarray,sr = sf.read(fnametemp)
+    audioarray,sr = load(fnametemp,mono=True,sr=None)
+    sf.write(fname,data=audioarray,samplerate=sr)
+    os.remove(fnametemp)
+    
     print ("{} seconds recorded from {} to file {}".format(nbsec,url,fname))
 
 
