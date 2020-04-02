@@ -57,7 +57,7 @@ def read_audio_hdr(strWAVFile,verbose=False):
         gain = float(words[11])
         battery = words[16]
 
-        metadata = dict(time=curtime,date=curdate,id=AMOid,gain=gain,battery=float(battery[:-2]))
+        metadata = dict(time=curtime,date=curdate,id=AMOid,gain=gain,datetime=curdate_time,battery=float(battery[:-2]))
     else:
         
         curtime = datetime.datetime.strptime(strWAVFile[-10:-4],"%H%M%S").time()
