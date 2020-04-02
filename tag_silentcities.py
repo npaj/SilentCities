@@ -14,11 +14,13 @@ import numpy as np
 from audioset_tagging_cnn.inference import audio_tagging
 from datetime import time
 import pandas as pd 
-from librosa.core import get_duration
+from librosa.core import get_duration,load
+import soundfile as sf
 
 import datetime 
 
 import argparse
+from ecoacoustics import compute_NDSI
 
 parser = argparse.ArgumentParser(description='Silent City Audio Tagging with pretrained LeeNet11 on Audioset')
 parser.add_argument('--length', default=10, type=int, help='Segment length')
@@ -42,7 +44,7 @@ Overwrite = args.overwrite
 
 
 
-all_seg = []
+all_files = []
 
 if args.folder is None:
     filelist = [args.file]
@@ -71,12 +73,14 @@ nbsec = args.length
 
 
 for wavfile in tqdm(filelist):
-    csvfile = (wavfile[:-3] + 'csv')
+    pdfile = (wavfile[:-3] + 'xz')
     try:
         if not(Overwrite):
-            if (os.path.isfile(csvfile)):
-                raise(NameError("File has already been processed"))
-
+            if (os.path.isfile(pdfile)):
+                all_files.append(pd.read_pickle(pdfile))
+                print(("File {} has already been processed ; loading and skipping".format(wavfile)))
+                continue
+                
         _,meta = utils.read_audio_hdr(wavfile,verbose)
             
         beg_seg = 0
@@ -88,7 +92,7 @@ for wavfile in tqdm(filelist):
         audioset_proba = []
         n=0
 
-        all_seg_folder = []
+        all_seg = []
         with torch.no_grad():    
             for curstart in (np.arange(beg_seg,end_seg,nbsec)):
 
@@ -99,6 +103,11 @@ for wavfile in tqdm(filelist):
                 # Make predictions for audioset 
                 clipwise_output, labels,sorted_indexes,embedding = audio_tagging(wavfile,checkpoint_path,offset=curstart,duration=nbsec,usecuda=args.cuda)
 
+                ### Calculate ndsi 
+                (waveform, sr) = load(wavfile, sr=None, mono=True,offset=curstart,duration=nbsec)
+                
+                ndsi = compute_NDSI(waveform,sr)
+                
 
                 # Print audio tagging top probabilities
                 texttagging = ''
@@ -123,31 +132,22 @@ for wavfile in tqdm(filelist):
 
                 delta=datetime.timedelta(seconds=int(curstart))
 
-
-
-                #onset_dt = time(hour=meta['time'].hour,minute=meta['time'].minute,second=meta['time'].second + int(curstart))
                 onset_dt = current_dt + delta
 
-                curdict = dict(datetime=onset_dt,time=onset_dt.time(),file=wavfile,onsets=curstart,freq=0.5,label=annotation_str,date=onset_dt.date(),probas=clipwise_output)
-                curdict2 = dict(datetime=onset_dt,time=onset_dt.time(),file=wavfile,onsets=curstart,label=annotation_str,date=onset_dt.date(),probas=clipwise_output)
+                curdict = dict(datetime=onset_dt,time=onset_dt.time(),file=wavfile,id=meta['id'],onsets=curstart,label=annotation_str,date=onset_dt.date(),probas=clipwise_output,embedding=embedding,ndsi=ndsi)
 
-                all_seg.append(curdict2)
-                all_seg_folder.append(curdict)
+                all_seg.append(curdict)
                 
-        df_forannot = pd.DataFrame(all_seg_folder)
-        df_forannot = df_forannot[['onsets','freq','label']]
-        df_forannot.to_csv(csvfile,index=False)
+        df_forannot = pd.DataFrame(all_seg)
+        df_forannot.to_pickle(pdfile)
+        all_files.append(df_forannot)
+                
     except Exception as e:
-        print(wavfile)
-        print(e)
+        print('Error with file {}'.format(wavfile))
+        raise(e)
 
 
-df = pd.DataFrame(all_seg)
-
-### Aggregate all datetimes with updated times
-#alldatetimes = [datetime.datetime(cdate.year,cdate.month,cdate.day,ctime.hour,ctime.minute,ctime.second) for ctime,cdate in zip(df.time,df.date)]
-
-#df['datetime'] = alldatetimes
+df = pd.concat(all_files)
 
 df = df.sort_values(by='datetime')
 
