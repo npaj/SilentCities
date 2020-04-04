@@ -20,7 +20,7 @@ import soundfile as sf
 import datetime 
 
 import argparse
-from ecoacoustics import compute_NDSI
+from ecoacoustics import compute_NDSI,compute_NB_peaks
 
 parser = argparse.ArgumentParser(description='Silent City Audio Tagging with pretrained LeeNet11 on Audioset')
 parser.add_argument('--length', default=10, type=int, help='Segment length')
@@ -30,7 +30,7 @@ parser.add_argument('--file', default=None, type=str, help='Path to file to proc
 parser.add_argument('--verbose', action='store_true', help='Verbose (default False = nothing printed)')
 parser.add_argument('--overwrite', action='store_true', help='Overwrite files (default False)')
 parser.add_argument('--out', default='output.xz', type=str, help='Output file (pandas pickle), default is output.xz')
-parser.add_argument('--cuda', action='store_false', help='Use the GPU for acceleration (Default True)')
+parser.add_argument('--nocuda', action='store_false', help='Do not use the GPU for acceleration')
 
 args = parser.parse_args()
 
@@ -77,8 +77,12 @@ for wavfile in tqdm(filelist):
     try:
         if not(Overwrite):
             if (os.path.isfile(pdfile)):
-                all_files.append(pd.read_pickle(pdfile))
-                print(("File {} has already been processed ; loading and skipping".format(wavfile)))
+                
+                print(("File {} has already been processed ; loading ".format(wavfile)))
+
+                Df = pd.read_pickle(pdfile)
+
+                all_files.append(Df)
                 continue
                 
         _,meta = utils.read_audio_hdr(wavfile,verbose)
@@ -101,12 +105,13 @@ for wavfile in tqdm(filelist):
                 onsets.append(curstart)
 
                 # Make predictions for audioset 
-                clipwise_output, labels,sorted_indexes,embedding = audio_tagging(wavfile,checkpoint_path,offset=curstart,duration=nbsec,usecuda=args.cuda)
+                clipwise_output, labels,sorted_indexes,embedding = audio_tagging(wavfile,checkpoint_path,offset=curstart,duration=nbsec,usecuda=args.nocuda)
 
-                ### Calculate ndsi 
+                ### Calculate ndsi and nbpeaks
                 (waveform, sr) = load(wavfile, sr=None, mono=True,offset=curstart,duration=nbsec)
                 
                 ndsi = compute_NDSI(waveform,sr)
+                nbpeaks = compute_NB_peaks(waveform,sr)
                 
 
                 # Print audio tagging top probabilities
@@ -134,7 +139,7 @@ for wavfile in tqdm(filelist):
 
                 onset_dt = current_dt + delta
 
-                curdict = dict(datetime=onset_dt,time=onset_dt.time(),file=wavfile,id=meta['id'],onsets=curstart,label=annotation_str,date=onset_dt.date(),probas=clipwise_output,embedding=embedding,ndsi=ndsi)
+                curdict = dict(datetime=onset_dt,time=onset_dt.time(),file=wavfile,id=meta['id'],onsets=curstart,label=annotation_str,date=onset_dt.date(),probas=clipwise_output,embedding=embedding,ndsi=ndsi,nbpeaks=nbpeaks)
 
                 all_seg.append(curdict)
                 
