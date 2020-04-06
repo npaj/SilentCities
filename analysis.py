@@ -59,15 +59,6 @@ def keep_array_thresh(probasarray,threshold=0.1):
     return ind_max,array_max[ind_max]
 
 
-def inverse_search(allprobas,label,Df):
-    ## find the label in thr list of all labels
-    
-    ind = int(np.argwhere([c==label for c in labels]))
-    
-    probas = allprobas[:,ind]
-    ind_max = np.argmax(probas)
-    files = list(Df.file)
-    return files[ind_max]
 
 
 def subset_probas(Df,search_labels):
@@ -79,6 +70,19 @@ def subset_probas(Df,search_labels):
 
     return allprobas[:,ind_list]
 
+
+def inverse_search(Df,label,thr):
+    
+    probas = subset_probas(Df,[label])
+
+    ind_max = np.argwhere(probas>thr)[:,0]
+
+    files = list(Df.file)
+
+    datetime = list(Df.datetime)
+
+    return [files[i] for i in ind_max],[datetime[i] for i in ind_max]
+    
 
 def heatmap_probas(Df,search_labels,nbannot = 30):
     
@@ -97,10 +101,11 @@ def heatmap_probas(Df,search_labels,nbannot = 30):
 
 
     fig = plt.figure(figsize=(20,10))
-    plt.matshow(prob.T,vmin=0,aspect='auto',cmap=plt.cm.Reds)
+    ax=plt.subplot(111)
+    curac=ax.matshow(prob.T,vmin=0,aspect='auto',cmap=plt.cm.Reds)
     plt.yticks(ticks = range(len(search_labels)),labels=search_labels)
     plt.xticks(ticks = range(len(timelabels)),labels = timelabels,rotation=90)
-    plt.colorbar()
+    plt.colorbar(curac)
     return fig
 
 def figure_embedding(Df,confin_day=datetime.date(2020,3,16)):
