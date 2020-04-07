@@ -59,12 +59,13 @@ def read_audio_hdr(strWAVFile,verbose=False):
 
         metadata = dict(time=curtime,date=curdate,id=AMOid,gain=gain,datetime=curdate_time,battery=float(battery[:-2]))
     else:
+        strFile = os.path.basename(strWAVFile)
+        strFile = strFile.split('_')
+        curtime = datetime.datetime.strptime(strFile[2],"%H%M%S").time()
+        curdate = datetime.datetime.strptime(strFile[1],"%Y%m%d").date()
+        curdate_time = datetime.datetime.strptime('{}_{}'.fomrat(strFile[1],strFile[2]),"%Y%m%d_%H%M%S")
         
-        curtime = datetime.datetime.strptime(strWAVFile[-10:-4],"%H%M%S").time()
-        curdate = datetime.datetime.strptime(strWAVFile[-19:-12],"%Y%m%d").date()
-        curdate_time = datetime.datetime.strptime(strWAVFile[-19:-4],"%Y%m%d_%H%M%S")
-        
-        SM4id = strWAVFile[-28:-20]
+        SM4id = strFile[0]
         if verbose:
             print('SM4 detected, ID is {}'.format(SM4id))
             print("Recording date and time is {}".format(curdate_time))
