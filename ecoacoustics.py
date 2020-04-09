@@ -138,3 +138,25 @@ def compute_NB_peaks(wave,sr, freqband = 200, normalization= True, slopes=(0.01,
     peak_freqs = [frequencies[p] for p in peaks_indices] # Frequencies of the peaks
 
     return len(peaks_indices)
+
+
+def compute_ACI(wave,sr):
+    """
+    Compute the Acoustic Complexity Index from the spectrogram of an audio signal.
+    Reference: Pieretti N, Farina A, Morri FD (2011) A new methodology to infer the singing activity of an avian community: the Acoustic Complexity Index (ACI). Ecological Indicators, 11, 868-873.
+    Ported from the soundecology R package.
+    spectro: the spectrogram of the audio signal
+    j_bin: temporal size of the frame (in samples)
+    """
+    j_bin= wave.shape[0] 
+    spectro, _ = compute_spectrogram(wave,sr)
+    #times = range(0, spectro.shape[1], j_bin) # relevant time indices
+    times = range(0, spectro.shape[1]-10, j_bin) # alternative time indices to follow the R code
+
+    jspecs = [np.array(spectro[:,i:i+j_bin]) for i in times]  # sub-spectros of temporal size j
+
+    aci = [sum((np.sum(abs(np.diff(jspec)), axis=1) / np.sum(jspec, axis=1))) for jspec in jspecs] 	# list of ACI values on each jspecs
+    main_value = sum(aci)
+    temporal_values = aci
+
+    return main_value, temporal_values # return main (global) value, temporal values
