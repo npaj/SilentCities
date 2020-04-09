@@ -13,7 +13,7 @@ from .pytorch_utils import move_data_to_device
 from .config import sample_rate,classes_num,labels
 
 
-def audio_tagging(audio_path,checkpoint_path,offset=None,duration=None,window_size=1024,hop_size=320,mel_bins=64,fmin=50,fmax=14000,model_type="LeeNet11",usecuda=False):
+def audio_tagging(audio_path,checkpoint_path,offset=None,duration=None,window_size=1024,hop_size=320,mel_bins=64,fmin=50,fmax=14000,model_type="ResNet22",usecuda=False):
     """Inference audio tagging result of an audio clip.
     """
 
