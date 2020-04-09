@@ -20,7 +20,7 @@ import soundfile as sf
 import datetime 
 
 import argparse
-from ecoacoustics import compute_NDSI,compute_NB_peaks
+from ecoacoustics import compute_NDSI,compute_NB_peaks,compute_ACI
 
 parser = argparse.ArgumentParser(description='Silent City Audio Tagging with pretrained LeeNet11 on Audioset')
 parser.add_argument('--length', default=10, type=int, help='Segment length')
@@ -64,7 +64,8 @@ if verbose:
 
 nbcat = args.nbcat
 
-checkpoint_path='./LeeNet11_mAP=0.266.pth'
+#checkpoint_path='./LeeNet11_mAP=0.266.pth'
+checkpoint_path = 'ResNet22_mAP=0.430.pth'
 
 if not(os.path.isfile(checkpoint_path)):
     raise(FileNotFoundError("Pretrained model {} wasn't found, did you download it ?".format(checkpoint_path)))
@@ -107,12 +108,13 @@ for wavfile in tqdm(filelist):
                 # Make predictions for audioset 
                 clipwise_output, labels,sorted_indexes,embedding = audio_tagging(wavfile,checkpoint_path,offset=curstart,duration=nbsec,usecuda=args.nocuda)
 
-                ### Calculate ndsi and nbpeaks
+                ### Calculate Eco acoustic indices
                 (waveform, sr) = load(wavfile, sr=None, mono=True,offset=curstart,duration=nbsec)
                 
                 ndsi = compute_NDSI(waveform,sr)
                 nbpeaks = compute_NB_peaks(waveform,sr)
-                
+
+                aci,_ = compute_ACI(waveform,sr)                
 
                 # Print audio tagging top probabilities
                 texttagging = ''
@@ -139,7 +141,7 @@ for wavfile in tqdm(filelist):
 
                 onset_dt = current_dt + delta
 
-                curdict = dict(datetime=onset_dt,time=onset_dt.time(),file=wavfile,id=meta['id'],onsets=curstart,label=annotation_str,date=onset_dt.date(),probas=clipwise_output,embedding=embedding,ndsi=ndsi,nbpeaks=nbpeaks)
+                curdict = dict(datetime=onset_dt,time=onset_dt.time(),file=wavfile,id=meta['id'],onsets=curstart,label=annotation_str,date=onset_dt.date(),probas=clipwise_output,embedding=embedding,ndsi=ndsi,nbpeaks=nbpeaks,aci=aci)
 
                 all_seg.append(curdict)
                 
