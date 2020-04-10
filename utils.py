@@ -61,9 +61,9 @@ def read_audio_hdr(strWAVFile,verbose=False):
     else:
         strFile = os.path.basename(strWAVFile)
         strFile = strFile.split('_')
-        curtime = datetime.datetime.strptime(strFile[2],"%H%M%S").time()
-        curdate = datetime.datetime.strptime(strFile[1],"%Y%m%d").date()
-        curdate_time = datetime.datetime.strptime('{}_{}'.fomrat(strFile[1],strFile[2]),"%Y%m%d_%H%M%S")
+        curtime = datetime.datetime.strptime(strFile[-1][:-4],"%H%M%S").time()
+        curdate = datetime.datetime.strptime(strFile[-2],"%Y%m%d").date()
+        curdate_time = datetime.datetime.strptime('{}_{}'.format(strFile[-2],strFile[-1][:-4]),"%Y%m%d_%H%M%S")
         
         SM4id = strFile[0]
         if verbose:
