@@ -71,13 +71,13 @@ def make_interactive_pdf(Df,list_resolutions = ['0.25H','H','3H','6H','12H','D']
 
         probas_agg = average_proba_over_freq(Df,freq_str=cur_res,subset_labels=fewlabels)
 
-        probas_agg['datetime'] = probas_agg.index
+        datelabel = probas_agg.index
 
         # Create figure
 
         for curcol in probas_agg.columns:
 
-            fig.add_trace(go.Scatter(x=probas_agg.datetime, y=probas_agg[curcol],name=curcol,visible=False))
+            fig.add_trace(go.Scatter(x=datelabel, y=probas_agg[curcol],name=curcol,visible=False))
 
             
     nbcol = len(probas_agg.columns)
