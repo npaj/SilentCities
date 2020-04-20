@@ -61,7 +61,7 @@ def average_proba_over_freq(Df,freq_str='D',subset_labels=fewlabels):
     return probas_agg
 
 
-def make_interactive_pdf(Df,list_resolutions = ['0.25H','H','3H','6H','12H','D'],active_beg = 4):
+def make_interactive_pdf(Df,list_resolutions = ['0.25H','H','3H','6H','12H','D'],active_beg = 4,subset_labels=fewlabels):
     
     fig = go.Figure()
 
@@ -71,7 +71,7 @@ def make_interactive_pdf(Df,list_resolutions = ['0.25H','H','3H','6H','12H','D']
 
     for cur_res in list_resolutions:
 
-        probas_agg = average_proba_over_freq(Df,freq_str=cur_res)
+        probas_agg = average_proba_over_freq(Df,freq_str=cur_res,subset_labels=fewlabels)
 
         probas_agg['datetime'] = probas_agg.index
 
