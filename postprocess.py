@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd 
 from matplotlib import pyplot as plt 
 from analysis import subset_probas
+import plotly.graph_objects as go
 
 fewlabels = ['Applause',
 'Bird vocalization, bird call, bird song',
@@ -58,3 +59,66 @@ def average_proba_over_freq(Df,freq_str='D',subset_labels=fewlabels):
     probas_agg = pd.DataFrame(allser)
 
     return probas_agg
+
+
+def make_interactive_pdf(Df,list_resolutions = ['0.25H','H','3H','6H','12H','D'],active_beg = 4):
+    
+    fig = go.Figure()
+
+     ## which resolution is active when starting
+
+    ### loop on resolution 
+
+    for cur_res in list_resolutions:
+
+        probas_agg = average_proba_over_freq(Df,freq_str=cur_res)
+
+        probas_agg['datetime'] = probas_agg.index
+
+        # Create figure
+
+        for curcol in probas_agg.columns:
+
+            fig.add_trace(go.Scatter(x=probas_agg.datetime, y=probas_agg[curcol],name=curcol,visible=False))
+
+            
+    nbcol = len(probas_agg.columns)
+
+    # Make one resolution visible trace visible
+    for curcol,_ in enumerate(probas_agg.columns):
+
+        fig.data[active_beg*nbcol+curcol].visible = True
+
+
+    # Create and add slider
+    steps = []
+    for i in range(len(list_resolutions)): 
+        step = dict(
+            method="restyle",
+            label=list_resolutions[i],
+            args=["visible", [False] * len(fig.data)],
+        )
+        
+        for curcol,_ in enumerate(probas_agg.columns):
+            step["args"][1][i*nbcol+curcol] = True  # Toggle trace to "visible"
+            steps.append(step)
+        
+    sliders = [dict(
+        active=active_beg*nbcol,
+        pad={"t": len(list_resolutions)},
+        #currentvalue={"prefix": "Resolution: "},
+        steps=steps
+    )]
+
+    fig.update_layout(
+        sliders=sliders
+    )
+    return fig
+
+
+if __name__ == "__main__":
+
+    Df = pd.read_pickle('0001.xz')
+    fig = make_interactive_pdf(Df)
+    fig.write_html("myfig.html")
+    fig.show()
