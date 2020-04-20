@@ -7,11 +7,9 @@ import plotly.graph_objects as go
 
 fewlabels = ['Applause',
 'Bird vocalization, bird call, bird song',
-'Chirp, tweet',
-'Pigeon, dove',
 'Caw',
 'Bee, wasp, etc.',
-'Wind noise (microphone)','Rain','Vehicle','Emergency vehicle','Rail transport','Aircraft','Silence']
+'Wind noise (microphone)','Rain','Vehicle','Silence']
 
 
 def average_proba_over_freq(Df,freq_str='D',subset_labels=fewlabels):
