@@ -83,8 +83,8 @@ def inverse_search(Df,label,thr):
 
     return [files[i] for i in ind_max],[datetime[i] for i in ind_max]
     
-
-def heatmap_probas(Df,search_labels,nbannot = 30):
+from postprocess import fewlabels
+def heatmap_probas(Df,search_labels=fewlabels,nbannot = 30):
     
     prob = subset_probas(Df,search_labels)
     nbobs = prob.shape[0]
